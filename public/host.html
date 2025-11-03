@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Host</title>
+      <script src="/socket.io/socket.io.js"></script>
+   </head>
+   <body>
+      <h1>Host Screen</h1>
+      <button id="reset">Reset</button>
+      <h2>Players:</h2>
+      <ul id="players"></ul>
+      <h2 id="winner">No one buzzed yet</h2>
+
+      <script>
+         const socket = io();
+
+         socket.on("playerList", (players) => {
+            document.getElementById("players").innerHTML =
+               players.map((p) => `<li>${p}</li>`).join("");
+         });
+
+         socket.on("buzzResult", (winner) => {
+            document.getElementById("winner").textContent = winner
+               ? `${winnder} buzzed first!`
+               : "No one buzzed yet";
+         });
+
+         document.getElementById("reset").onclick = () => {
+            socket.emit("reset");
+         };
+      </script>
+   </body>
+</html>
