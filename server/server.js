@@ -19,7 +19,10 @@ io.on("connection", (socket) => {
 
    socket.on("create-room", () => {
       const roomCode = Math.random().toString(36).substring(2,6).toUpperCase();
-      rooms[roomCode] = { players: [] };
+      rooms[roomCode] = {
+         players: [],
+         phase: "lobby"
+      };
       socket.join(roomCode);
       socket.emit("room-created", roomCode);
       console.log(`Room created: ${roomCode}`);
@@ -31,9 +34,19 @@ io.on("connection", (socket) => {
          room.players.push({ id: socket.id, name });
          socket.join(roomCode);
          io.to(roomCode).emit("player-list", room.players);
+
+         socket.emit("joined-room", roomCode);
       } else {
          socket.emit("error-message", "Room not found");
       }
+   });
+
+   socket.on("start-game", (roomCode) => {
+      const room = rooms[roomCode];
+      if (!room) return;
+
+      room.phase = "round1";
+      io.to(roomCode).emit("game-started");
    });
 
    socket.on("disconnect", () => {
@@ -43,6 +56,7 @@ io.on("connection", (socket) => {
       }
       console.log("User disconnected:", socket.id);
    });
+
 });
 
 server.listen(4000, () => console.log("Server running on port 4000"));
