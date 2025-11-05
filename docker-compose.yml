@@ -1,0 +1,26 @@
+services:
+  server:
+    build: ./server
+    ports:
+      - "4000:4000"
+    networks:
+      - "party-net"
+    environment:
+      - NODE_ENV=development
+    volumes: []
+    command: node server.js
+
+  client:
+    build: ./client
+    ports:
+      - "5173:5173"
+    networks:
+      - party-net
+    environment:
+      - NODE_ENV=development
+      - VITE_SERVER_URL=http://server:4000
+    volumes: []
+    command: npm run dev -- --host
+
+networks:
+  party-net:
